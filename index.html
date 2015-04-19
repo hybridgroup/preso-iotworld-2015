@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>Full Stack Robotics - SCaLE 13x</title>
+    <title>Full Stack Robotics - Fluent 2015</title>
 
     <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
     <meta name="author" content="Hakim El Hattab">
@@ -44,11 +44,11 @@
         </section>
 
         <section>
-          <h2>Good Evening</h2>
+          <h2>Good Afternoon</h2>
         </section>
 
         <section>
-          <h2>This is #scale13x</h2>
+          <h2>This is #fluentconf</h2>
         </section>
 
         <section>
@@ -100,14 +100,14 @@
         <section>
           <h2>Starring</h2>
           <div class="image-container">
-            <img src="images/gobot-logo.png">
+            <img src="images/cylonjs-logo.png">
           </div>
         </section>
 
         <section>
           <h2>Featuring</h2>
           <div class="image-container">
-            <img src="images/cylonjs-logo.png">
+            <img src="images/gobot-logo.png">
           </div>
         </section>
 
@@ -130,37 +130,7 @@
 
           <section>
             <pre><code data-trim>
-package main
-
-import (
-  "time"
-
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/platforms/firmata"
-  "github.com/hybridgroup/gobot/platforms/gpio"
-)
-
-func main() {
-  gbot := gobot.NewGobot()
-
-  firmataAdaptor := firmata.NewFirmataAdaptor("arduino", "/dev/ttyACM0")
-  led := gpio.NewLedDriver(firmataAdaptor, "led", "13")
-
-  work := func() {
-    gobot.Every(1*time.Second, func() {
-      led.Toggle()
-    })
-  }
-
-  robot := gobot.NewRobot("bot",
-    []gobot.Connection{firmataAdaptor},
-    []gobot.Device{led},
-    work,
-  )
-
-  gbot.AddRobot(robot)
-  gbot.Start()
-}
+// code here...
             </code></pre>
           </section>
 
@@ -176,37 +146,7 @@ func main() {
 
           <section>
             <pre><code data-trim>
-package main
-
-import (
-  "time"
-
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/platforms/beaglebone"
-  "github.com/hybridgroup/gobot/platforms/gpio"
-)
-
-func main() {
-  gbot := gobot.NewGobot()
-
-  beagleboneAdaptor := beaglebone.NewBeagleboneAdaptor("beaglebone")
-  led := gpio.NewLedDriver(beagleboneAdaptor, "led", "P9_12")
-
-  work := func() {
-    gobot.Every(1*time.Second, func() {
-      led.Toggle()
-    })
-  }
-
-  robot := gobot.NewRobot("blinkBot",
-    []gobot.Connection{beagleboneAdaptor},
-    []gobot.Device{led},
-    work,
-  )
-
-  gbot.AddRobot(robot)
-  gbot.Start()
-}
+// code here...
             </code></pre>
           </section>
 
@@ -241,166 +181,18 @@ func main() {
 
         <section>
           <section>
-            <h2>Intel Edison + Sphero Ollie</h2>
+            <h2>Intel Edison + Sphero</h2>
           </section>
 
           <section>
             <pre><code data-trim>
-var Cylon = require('cylon');
-
-Cylon.api("http", {host: "0.0.0.0", ssl: false});
-
-Cylon.robot({
-  name: 'olliebot',
-  connections: {
-    bluetooth: { adaptor: 'central', uuid: 'd7995a26ec38', module: 'cylon-ble'}
-  },
-
-  devices: {
-    ollie: { name: 'ollie', driver: 'ollie'}
-  },
-
-  move: function(direction) {
-    var my = this;
-
-    switch (direction) {
-      case "up":
-        my.ollie.roll(60, 0, 1);
-        break;
-      case "down":
-        my.ollie.roll(60, 180, 1);
-        break;
-      case "left":
-        my.ollie.setRGB(0xFF0000, false, function() {
-          my.ollie.setRawMotorValues(my.ollie.MotorForward, 200, my.ollie.MotorReverse, 200);
-        });
-        break;
-      case "right":
-        my.ollie.setRGB(0xFF0000, false, function() {
-          my.ollie.setRawMotorValues(my.ollie.MotorReverse, 200, my.ollie.MotorForward, 200);
-        });
-        break;
-    }
-
-    setTimeout(function() {
-      my.ollie.setRGB(0x00FFFF, true, function() {
-        my.ollie.stop();
-      });
-    }, 1000);
-
-    return "ok";
-  },
-
-  commands: function() {
-    return {
-      move: this.move
-    };
-  },
-
-  work: function(my) {
-    my.ollie.wake(function(err, data){
-      after(200, function() {
-        my.ollie.setRGB(0x00FFFF);
-      });
-    });
-  }
-}).start();
+// code here...
             </code></pre>
           </section>
 
           <section>
             <pre><code data-trim>
-{
-  "command_set":{
-    "name": "Olliebot",
-    "type": "d-pad",
-    "commands":[
-      {
-        "label": "Up",
-        "robot": "olliebot",
-        "device": "",
-        "name": "move",
-        "params":{"direction":"up"}
-      },
-      {
-        "label": "Down",
-        "robot": "olliebot",
-        "device": "",
-        "name": "move",
-        "params":{"direction":"down"}
-      },
-      {
-        "label": "Left",
-        "robot": "olliebot",
-        "device": "",
-        "name": "move",
-        "params":{"direction":"left"}
-      },
-      {
-        "label": "Right",
-        "robot": "olliebot",
-        "device": "",
-        "name": "move",
-        "params":{"direction":"right"}
-      }
-    ]
-  }
-}
-            </code></pre>
-          </section>
-
-          <section>
-            <img src="http://localhost:8080/?action=stream">  
-          </section>          
-        </section>
-
-        <section>
-          <section>
-            <h2>Intel Edison + WowWee MiP</h2>
-          </section>
-
-          <section>
-            <pre><code data-trim>
-var Cylon = require('cylon');
-
-Cylon.api("http", {host: "0.0.0.0", ssl: false});
-
-Cylon.robot({
-  name: 'olliebot',
-  connections: { bluetooth: {adaptor: 'central', uuid: 'd03972a24e55', module: 'cylon-ble'}},
-  devices: {mip: {driver: 'mip'}},
-
-  move: function(direction) {
-    var my = this;
-
-    switch (direction) {
-      case "up":
-        my.mip.setGameMode(my.mip.Games.Roam);
-        break;
-      case "down":
-        my.mip.stop();
-        break;
-      case "left":
-        my.mip.setGameMode(my.mip.Games.Dance);
-        break;
-      case "right":
-        my.mip.setGameMode(my.mip.Games.Default);
-        break;
-    }
-
-    return "ok";
-  },
-
-  commands: function() {
-    return {
-      move: this.move
-    };
-  },
-
-  work: function(my) {
-    my.mip.setHeadLED(2, 2, 2, 2);
-  }
-}).start();
+// command set here...
             </code></pre>
           </section>
 
@@ -424,7 +216,6 @@ Cylon.robot({
             <h2>@spark_io and @cylonjs</h2>
           </section>
         </section>
-
 
         <section>
           <h2>It All Starts With A Customer...</h2>
@@ -461,77 +252,7 @@ Cylon.robot({
 
           <section>
             <pre><code data-trim>
-package main
-
-import (
-  "fmt"
-  "net/url"
-  "time"
-
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/platforms/gpio"
-  "github.com/hybridgroup/gobot/platforms/intel-iot/edison"
-  "github.com/hybridgroup/gobot/platforms/mqtt"
-)
-
-func main() {
-  gbot := gobot.NewGobot()
-
-  e := edison.NewEdisonAdaptor("edison")
-  m := mqtt.NewMqttAdaptor("mqtt", "tcp://192.168.0.90:1883", "pump")
-
-  lever := gpio.NewButtonDriver(e, "lever", "2")
-  fault := gpio.NewButtonDriver(e, "fault", "4")
-  pump := gpio.NewDirectPinDriver(e, "pump", "13")
-
-  work := func() {
-    dgram := url.Values{
-      "name":         {"Four"},
-      "dispenser_id": {"4"},
-      "drink_id":     {"0"},
-      "event":        {"online"},
-      "details":      {"dispenser"},
-    }
-    pumping := false
-    served := byte(0)
-
-    m.On("startPump", func(data []byte) {
-      if !pumping {
-        pumping = true
-        pump.DigitalWrite(1)
-        served++
-        dgram.Set("event", "online")
-        dgram.Set("drink_id", fmt.Sprintf("%v", served))
-        m.Publish("pumped", []byte(dgram.Encode()))
-        gobot.After(2*time.Second, func() {
-          pump.DigitalWrite(0)
-          pumping = false
-        })
-      }
-    })
-
-    gobot.On(lever.Event("push"), func(data interface{}) {
-      m.Publish("pump", []byte{})
-    })
-
-    m.On("startFault", func(data []byte) {
-      dgram.Set("event", "error")
-      m.Publish("fault", []byte(dgram.Encode()))
-    })
-
-    gobot.On(fault.Event("push"), func(data interface{}) {
-      m.Publish("startFault", []byte{})
-    })
-  }
-
-  gbot.AddRobot(gobot.NewRobot("brewmachine",
-    []gobot.Connection{e, m},
-    []gobot.Device{lever, fault, pump},
-    work,
-  ))
-
-  gbot.Start()
-}
+// code here...
             </code></pre>
           </section>
 
@@ -559,100 +280,7 @@ func main() {
 
           <section>
             <pre><code data-trim>
-package main
-
-import (
-  "fmt"
-  "net/http"
-  "net/url"
-
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/api"
-  "github.com/hybridgroup/gobot/platforms/mqtt"
-  "github.com/hybridgroup/gobot/platforms/pebble"
-)
-
-func pebbleRobot() *gobot.Robot {
-  p := pebble.NewPebbleAdaptor("pebble")
-  m := mqtt.NewMqttAdaptor("mqtt", "tcp://192.168.0.90:1883", "pebble")
-  watch := pebble.NewPebbleDriver(p, "pebble")
-
-  work := func() {
-    m.On("watch", func(data []byte) {
-      watch.SendNotification(string(data))
-    })
-  }
-
-  return gobot.NewRobot("pebble",
-    []gobot.Connection{p, m},
-    []gobot.Device{watch},
-    work,
-  )
-}
-
-func hqRobot() *gobot.Robot {
-  m := mqtt.NewMqttAdaptor("mqtt", "tcp://192.168.0.90:1883", "hq")
-
-  work := func() {
-    watch := func(msg string) {
-      fmt.Println(msg)
-      m.Publish("watch", []byte(msg))
-    }
-
-    post := func(val []byte) {
-      v, _ := url.ParseQuery(string(val))
-      _, err := http.PostForm("https://brewmachine.herokuapp.com/drinks",
-        v,
-      )
-      if err != nil {
-        fmt.Println(err)
-      }
-    }
-    m.On("pump", func(data []byte) {
-      m.Publish("startPump", []byte{})
-    })
-
-    m.On("pumped", func(data []byte) {
-      go post(data)
-      v, _ := url.ParseQuery(string(data))
-      watch(fmt.Sprintf("Customers served: %v", v.Get("drink_id")))
-    })
-    m.On("fault", func(data []byte) {
-      go post(data)
-      watch("There was a fault!")
-    })
-    m.On("drone", func(data []byte) {
-      go post(data)
-      watch(fmt.Sprintf("Message from drone: %v", string(data)))
-    })
-    m.On("gcs", func(data []byte) {
-      fmt.Println(string(data))
-      go post(data)
-    })
-  }
-
-  return gobot.NewRobot("mqtt",
-    []gobot.Connection{m},
-    work,
-  )
-}
-
-func main() {
-  gbot := gobot.NewGobot()
-  api.NewAPI(gbot).Start()
-
-  gbot.AddCommand("pump", func(params map[string]interface{}) interface{} {
-    return gbot.Robot("mqtt").Connection("mqtt").(*mqtt.MqttAdaptor).Publish("startPump", []byte{})
-  })
-  gbot.AddCommand("fault", func(params map[string]interface{}) interface{} {
-    return gbot.Robot("mqtt").Connection("mqtt").(*mqtt.MqttAdaptor).Publish("startFault", []byte{})
-  })
-
-  gbot.AddRobot(hqRobot())
-  gbot.AddRobot(pebbleRobot())
-
-  gbot.Start()
-}
+// code here...
             </code></pre>
           </section>
 
@@ -677,17 +305,8 @@ func main() {
 
           <section>
             <pre><code data-trim>
-func main() {
-  gbot := gobot.NewGobot()
-  api.NewAPI(gbot).Start()
-
-  gbot.AddCommand("pump", func(params map[string]interface{}) interface{} {
-    return gbot.Robot("mqtt").Connection("mqtt").(*mqtt.MqttAdaptor).Publish("startPump", []byte{})
-  })
-  gbot.AddCommand("fault", func(params map[string]interface{}) interface{} {
-    return gbot.Robot("mqtt").Connection("mqtt").(*mqtt.MqttAdaptor).Publish("startFault", []byte{})
-  })
-...
+// code here
+// ...
             </code></pre>
           </section>
 
@@ -711,159 +330,7 @@ func main() {
 
           <section>
             <pre><code data-trim>
-package main
-
-import (
-  "fmt"
-  "math"
-  "net/url"
-  "time"
-
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/platforms/ardrone"
-  "github.com/hybridgroup/gobot/platforms/joystick"
-  "github.com/hybridgroup/gobot/platforms/mqtt"
-)
-
-type pair struct {
-  x float64
-  y float64
-}
-
-func main() {
-  gbot := gobot.NewGobot()
-
-  m := mqtt.NewMqttAdaptor("mqtt", "tcp://192.168.0.90:1883", "gcs")
-  ardroneAdaptor := ardrone.NewArdroneAdaptor("Drone", "192.168.0.40")
-  joystickAdaptor := joystick.NewJoystickAdaptor("ps3")
-
-  joystick := joystick.NewJoystickDriver(joystickAdaptor,
-    "ps3",
-    "./dualshock3.json",
-  )
-
-  drone := ardrone.NewArdroneDriver(ardroneAdaptor, "Drone")
-
-  work := func() {
-    dgram := url.Values{
-      "name":         {"gcs"},
-      "dispenser_id": {"3"},
-      "drink_id":     {"0"},
-      "event":        {"available"},
-      "details":      {"drone"},
-    }
-    m.Publish("gcs", []byte(dgram.Encode()))
-    offset := 32767.0
-    rightStick := pair{x: 0, y: 0}
-    leftStick := pair{x: 0, y: 0}
-
-    m.On("drone", func(data []byte) {
-      dgram.Set("event", "delivery complete")
-      m.Publish("gcs", []byte(dgram.Encode()))
-    })
-
-    gobot.On(joystick.Event("circle_press"), func(data interface{}) {
-      fmt.Println("Drop!")
-      m.Publish("drop", []byte{})
-    })
-    gobot.On(joystick.Event("square_press"), func(data interface{}) {
-      drone.TakeOff()
-      dgram.Set("event", "en route")
-      m.Publish("gcs", []byte(dgram.Encode()))
-    })
-    gobot.On(joystick.Event("triangle_press"), func(data interface{}) {
-      drone.Hover()
-    })
-    gobot.On(joystick.Event("x_press"), func(data interface{}) {
-      drone.Land()
-      dgram.Set("event", "available")
-      m.Publish("gcs", []byte(dgram.Encode()))
-    })
-    gobot.On(joystick.Event("left_x"), func(data interface{}) {
-      val := float64(data.(int16))
-      if leftStick.x != val {
-        leftStick.x = val
-      }
-    })
-    gobot.On(joystick.Event("left_y"), func(data interface{}) {
-      val := float64(data.(int16))
-      if leftStick.y != val {
-        leftStick.y = val
-      }
-    })
-    gobot.On(joystick.Event("right_x"), func(data interface{}) {
-      val := float64(data.(int16))
-      if rightStick.x != val {
-        rightStick.x = val
-      }
-    })
-    gobot.On(joystick.Event("right_y"), func(data interface{}) {
-      val := float64(data.(int16))
-      if rightStick.y != val {
-        rightStick.y = val
-      }
-    })
-
-    gobot.Every(10*time.Millisecond, func() {
-      pair := leftStick
-      if pair.y < -10 {
-        drone.Forward(validatePitch(pair.y, offset))
-      } else if pair.y > 10 {
-        drone.Backward(validatePitch(pair.y, offset))
-      } else {
-        drone.Forward(0)
-      }
-
-      if pair.x > 10 {
-        drone.Right(validatePitch(pair.x, offset))
-      } else if pair.x < -10 {
-        drone.Left(validatePitch(pair.x, offset))
-      } else {
-        drone.Right(0)
-      }
-    })
-
-    gobot.Every(10*time.Millisecond, func() {
-      pair := rightStick
-      if pair.y < -10 {
-        drone.Up(validatePitch(pair.y, offset))
-      } else if pair.y > 10 {
-        drone.Down(validatePitch(pair.y, offset))
-      } else {
-        drone.Up(0)
-      }
-
-      if pair.x > 20 {
-        drone.Clockwise(validatePitch(pair.x, offset))
-      } else if pair.x < -20 {
-        drone.CounterClockwise(validatePitch(pair.x, offset))
-      } else {
-        drone.Clockwise(0)
-      }
-    })
-  }
-
-  robot := gobot.NewRobot("ardrone",
-    []gobot.Connection{joystickAdaptor, ardroneAdaptor, m},
-    []gobot.Device{joystick, drone},
-    work,
-  )
-
-  gbot.AddRobot(robot)
-
-  gbot.Start()
-}
-
-func validatePitch(data float64, offset float64) float64 {
-  value := math.Abs(data) / offset
-  if value >= 0.1 {
-    if value <= 1.0 {
-      return float64(int(value*100)) / 100
-    }
-    return 1.0
-  }
-  return 0.0
-}
+// drone code here
             </code></pre>
           </section>
 
