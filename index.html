@@ -110,13 +110,6 @@
         </section>
 
         <section>
-          <h2>Featuring</h2>
-          <div class="image-container">
-            <img src="images/gobot-logo.png">
-          </div>
-        </section>
-
-        <section>
           <div class="image-container">
             <img src="images/arch-1.png">
           </div>
@@ -135,7 +128,21 @@
 
           <section>
             <pre><code data-trim>
-// code here...
+var Cylon = require("cylon");
+
+Cylon.robot({
+  connections: {
+    arduino: { adaptor: "firmata", port: "/dev/ttyACM0" }
+  },
+
+  devices: {
+    led: { driver: "led", pin: 13 }
+  },
+
+  work: function(my) {
+    every((1).second(), my.led.toggle);
+  }
+}).start();
             </code></pre>
           </section>
 
@@ -151,7 +158,21 @@
 
           <section>
             <pre><code data-trim>
-// code here...
+var Cylon = require("cylon");
+
+Cylon.robot({
+  connections: {
+    beaglebone: { adaptor: "beaglebone" }
+  },
+
+  devices: {
+    led: { driver: "led", pin: "P9_12" }
+  },
+
+  work: function(my) {
+    every((1).second(), my.led.toggle);
+  }
+}).start();
             </code></pre>
           </section>
 
@@ -215,13 +236,70 @@
 
           <section>
             <pre><code data-trim>
-// code here...
+var cylon = require('cylon');
+ 
+cylon.api('http',{
+  host: '0.0.0.0',
+  port: '8080',
+  ssl:  false
+});
+ 
+cylon.robot({
+  name: 'sphero-dpad',
+  connections: { 
+    sphero: { adaptor: 'sphero', port: '/dev/rfcomm2' } 
+  },
+  devices: { 
+    sphero: { driver: 'sphero' } 
+  },
+  work: function() {
+    var that = this;
+    that.sphero.detectCollisions();
+    that.sphero.setColor("white");
+  },
+  commands: function() {
+    var that = this;
+    return {
+      move: function(direction) {
+        var heading = 0;
+ 
+        switch (direction) {
+          case "up":
+            heading = 0;
+            break;
+          case "down":
+            heading = 180;
+            break;
+          case "left":
+            heading = 270;
+            break;
+          case "right":
+            heading = 90;
+            break;
+        }
+ 
+        that.sphero.roll(100, heading);
+ 
+        setTimeout(function() {
+          that.sphero.stop();
+        }, 500);
+      },
+      change_color: function(color) {
+        that.sphero.setColor(color);
+      }
+    };
+  }
+}).start();
             </code></pre>
           </section>
 
           <section>
+            <a target="_blank" href="http://192.168.1.3:8080">Robeaux Demo</a>
+          </section>
+
+          <section>
             <img src="http://localhost:8080/?action=stream">  
-          </section>          
+          </section>
         </section>
 
         <section>
@@ -275,16 +353,74 @@
 
           <section>
             <pre><code data-trim>
-// code here...
+var cylon = require('cylon');
+ 
+cylon.robot({
+  name: "brewer",
+  connections: {
+    edison: { adaptor: 'intel-iot' },
+    mqtt:   { adaptor: 'mqtt', host: 'tcp://127.0.0.1:1883' }
+  },
+  devices: {
+    lever: { driver: 'button',     pin: 2,  connection: 'edison' },
+    fault: { driver: 'button',     pin: 4,  connection: 'edison' },
+    pump:  { driver: 'direct-pin', pin: 13, connection: 'edison' },
+    start_pump: { driver: 'mqtt', topic: 'start_pump', connection: 'mqtt' },
+    start_fault: { driver: 'mqtt', topic: 'start_fault', connection: 'mqtt' }
+  },
+  work: function() {
+    var that = this,
+        pumping = false,
+        served = 0,
+        dgram = {
+          name: "Four",
+          event: "online",
+          details: "dispenser",
+          drink_id: 0,
+          dispenser_id: 4
+        };
+ 
+    that.lever.on('push', function() {
+      console.log('lever');
+      that.mqtt.publish('start_pump'); 
+    });
+ 
+    that.fault.on('push', function() {
+      console.log('fault');
+      that.mqtt.publish('start_fault');
+    });
+
+    that.start_pump.on('message', function(data) {
+      if (!pumping) {
+        pumping = true;
+        that.pump.digitalWrite(1)
+        dgram.drink_id++
+        dgram.event = "online";
+        that.mqtt.publish('pumped', JSON.stringify(dgram));
+        setTimeout(function() {
+          that.pump.digitalWrite(0);
+          pumping = false;
+        }, 2000);
+      }
+    });
+ 
+    that.start_fault.on('message', function(data) {
+      dgram.event = 'error';
+      that.mqtt.publish('fault', JSON.stringify(dgram));
+    }); 
+  }
+}).start();
             </code></pre>
           </section>
 
           <section>
             <img src="http://localhost:8080/?action=stream">  
           </section>
+         <section>
+            <a target="_blank" href="http://brewmachine.herokuapp.com">Brewmachine site</a>
+          </section>          
         </section>
-
-
+ 
         <section>
           <section>
             <h2>Wearable Notifications</h2>
@@ -303,7 +439,72 @@
 
           <section>
             <pre><code data-trim>
-// code here...
+var cylon = require('cylon'),
+    request = require('request');
+ 
+cylon.api({
+  host: "0.0.0.0",
+  port: "8080",
+  ssl: false
+});
+ 
+cylon.robot({
+  name: 'hq',
+  connections: {
+    mqtt:   { adaptor: 'mqtt', host: 'tcp://127.0.0.1:1883' },
+    pebble: { adaptor: 'pebble' } 
+  },
+  devices: {
+    gcs:    { driver: 'mqtt', topic: 'gcs',    connection: 'mqtt' },
+    pump:   { driver: 'mqtt', topic: 'pump',   connection: 'mqtt' },
+    fault:  { driver: 'mqtt', topic: 'fault',  connection: 'mqtt' }, 
+    drone:  { driver: 'mqtt', topic: 'drone',  connection: 'mqtt' }, 
+    pumped: { driver: 'mqtt', topic: 'pumped', connection: 'mqtt' },
+    pebble: { driver: 'pebble', connection: 'pebble' }
+  },
+  commands: function() {
+    var that = this;
+    return {
+      pump: function() {
+        that.mqtt.publish("start_pump");
+      },
+      fault: function() {
+        that.mqtt.publish("start_fault");
+      }
+    };
+  },
+  work: function() {
+    var that = this,
+        brewmachine = "https://brewmachine.herokuapp.com/drinks";
+ 
+    that.pump.on("message", function(data) {
+      that.mqtt.publish("start_pump");
+    });
+ 
+    that.pumped.on("message", function(data) {
+      request.post(brewmachine, { form: JSON.parse(data) });
+      that.pebble.send_notification("Customers served: " + JSON.parse(data).drink_id);
+      console.log("Customers served: " + JSON.parse(data).drink_id);
+    });
+ 
+    that.fault.on("message", function(data) {
+      request.post(brewmachine, { form: JSON.parse(data) });
+      that.pebble.send_notification("There was a fault!");
+      console.log("There was a fault!");
+    });
+ 
+    that.drone.on("message", function(data) {
+      request.post(brewmachine, { form: JSON.parse(data) });
+      that.pebble.send_notification("Message from drone: " + data.toString());
+      console.log("Message from drone: " + data.toString());
+    });
+ 
+    that.gcs.on("message", function(data) {
+      request.post(brewmachine, { form: JSON.parse(data) });
+      console.log(data.toString());
+    });
+  }
+}).start();
             </code></pre>
           </section>
 
@@ -328,8 +529,19 @@
 
           <section>
             <pre><code data-trim>
-// code here
-// ...
+...
+  commands: function() {
+    var that = this;
+    return {
+      pump: function() {
+        that.mqtt.publish("start_pump");
+      },
+      fault: function() {
+        that.mqtt.publish("start_fault");
+      }
+    };
+  },
+...
             </code></pre>
           </section>
 
@@ -342,7 +554,7 @@
         <section>
           <section>
             <h2>Drone Delivery</h2>
-            <h3>Intel Edison + MQTT + ARDrone + Commander + Pebble + DigiSpark</h3>
+            <h3>Intel Edison + MQTT + ARDrone + Commander + Pebble</h3>
           </section>
 
           <section>
@@ -353,46 +565,124 @@
 
           <section>
             <pre><code data-trim>
-// drone code here
-            </code></pre>
-          </section>
+var cylon = require("cylon");
 
-          <section>
-            <pre><code data-trim>
-package main
+cylon.robot({
+  name: "gcs",
+  connections: {
+    joystick: { adaptor: "joystick" },
+    ardrone:  { adaptor: 'rolling-spider', uuid: '276ca7b527984c289e72c5f0daf9ddfa'},
+    mqtt:     { adaptor: "mqtt", host: "tcp://192.168.1.3:1883" }
+  },
+  devices: {
+    controller: { driver: "dualshock-3", connection: "joystick" },
+    drone:      { driver: "rolling-spider", connection: "ardrone" }
+  },
+  work: function() {
+    var that = this;
+        rightStick = { x: 0.0, y: 0.0 },
+        leftStick = { x: 0.0, y: 0.0 },
+        dgram = {
+          name:         "gcs",
+          dispenser_id: 34,
+          drink_id:     0,
+          event:        "available",
+          details:      "drone",
+        };
 
-import (
-  "github.com/hybridgroup/gobot"
-  "github.com/hybridgroup/gobot/platforms/digispark"
-  "github.com/hybridgroup/gobot/platforms/gpio"
-  "github.com/hybridgroup/gobot/platforms/mqtt"
-)
+    that.drone.trim();
+    that.mqtt.publish("gcs", JSON.stringify(dgram));
 
-func main() {
-  gbot := gobot.NewGobot()
+    that.controller.on("circle:press", function() {
+      that.drone.frontFlip();
+      dgram.event = "delivery complete";
+      console.log(dgram);
+      that.mqtt.publish("gcs", JSON.stringify(dgram));
+    });
 
-  m := mqtt.NewMqttAdaptor("mqtt", "tcp://192.168.0.90:1883", "drone")
-  digisparkAdaptor := digispark.NewDigisparkAdaptor("digispark")
+    that.controller.on("square:press", function() {
+      that.drone.takeOff();
+      dgram.event = "en route";
+      console.log(dgram);
+      that.mqtt.publish("gcs", JSON.stringify(dgram));
+    });
 
-  servo := gpio.NewServoDriver(digisparkAdaptor, "servo", "0")
+    that.controller.on("triangle:press", function() {
+      that.drone.hover();
+    });
 
-  work := func() {
-    servo.Move(10)
-    m.On("drop", func(data []byte) {
-      servo.Move(150)
-      m.Publish("drone", []byte("Dropped"))
-    })
+    that.controller.on("x:press", function() {
+      that.drone.land();
+      dgram.event = "available";
+      console.log(dgram);
+      that.mqtt.publish("gcs", JSON.stringify(dgram));
+    });
+
+    that.controller.on("right_x:move", function(data) {
+      rightStick.x = data;
+    });
+
+    that.controller.on("right_y:move", function(data) {
+      rightStick.y = data;
+    });
+
+    that.controller.on("left_x:move", function(data) {
+      leftStick.x = data;
+    });
+
+    that.controller.on("left_y:move", function(data) {
+      leftStick.y = data;
+    });
+
+    setInterval(function() {
+      var pair = leftStick;
+
+      if (pair.y < 0) {
+        that.drone.forward(validatePitch(pair.y));
+      } else if (pair.y > 0) {
+        that.drone.backward(validatePitch(pair.y));
+      }
+
+      if (pair.x > 0) {
+        that.drone.right(validatePitch(pair.x));
+      } else if (pair.x < 0) {
+        that.drone.left(validatePitch(pair.x));
+      }
+    }, 0);
+
+    setInterval(function() {
+      var pair = rightStick;
+
+      if (pair.y < 0) {
+        that.drone.up(validatePitch(pair.y));
+      } else if (pair.y > 0) {
+        that.drone.down(validatePitch(pair.y));
+      }
+
+      if (pair.x > 0) {
+        that.drone.clockwise(validatePitch(pair.x));
+      } else if (pair.x < 0) {
+        that.drone.counterClockwise(validatePitch(pair.x));
+      }
+    }, 0);
+
+    setInterval(function() {
+      that.drone.hover();
+    }, 10);
   }
+}).start();
 
-  robot := gobot.NewRobot("servoBot",
-    []gobot.Connection{digisparkAdaptor, m},
-    []gobot.Device{servo},
-    work,
-  )
-
-  gbot.AddRobot(robot)
-
-  gbot.Start()
+function validatePitch(data) {
+  var value = Math.abs(data);
+  if (value >= 0.1) {
+    if (value <= 1.0) {
+      return (Math.round(value * 100.0) / 100.0) * 100;
+    } else {
+      return 1.0 * 100;
+    }
+  } else {
+    return 0.0;
+  }
 }
             </code></pre>
           </section>
@@ -421,11 +711,6 @@ func main() {
 
         <section>
           <h2>watchbot.io</h2>
-        </section>
-
-        <section>
-          <h2>gobot.io</h2>
-          <h3>@gobotio</h3>
         </section>
 
         <section>
